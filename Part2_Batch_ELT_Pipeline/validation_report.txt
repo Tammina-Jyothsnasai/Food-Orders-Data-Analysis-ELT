@@ -1,0 +1,58 @@
+FOOD ORDERS - DATA VALIDATION REPORT
+==================================================
+
+1. MISSING VALUE CHECK
+Order ID                    0
+Customer ID                 0
+Restaurant ID               0
+Order Date and Time         0
+Delivery Date and Time      0
+Order Value                40
+Delivery Fee               50
+Payment Method              0
+Discounts and Offers        0
+Commission Fee             40
+Payment Processing Fee     50
+Refunds/Chargebacks        40
+Weather Condition           0
+Order Channel               0
+Delivery_Time_Minutes       0
+Platform_Net_Revenue      172
+Total missing values: 392
+
+2. DUPLICATE RECORD CHECK
+Duplicate records: 0
+
+3. DATA TYPE CHECK
+Datetime columns: PASS
+Numeric columns: PASS
+Order ID                          object
+Customer ID                       object
+Restaurant ID                     object
+Order Date and Time       datetime64[ns]
+Delivery Date and Time    datetime64[ns]
+Order Value                      float64
+Delivery Fee                     float64
+Payment Method                    object
+Discounts and Offers              object
+Commission Fee                   float64
+Payment Processing Fee           float64
+Refunds/Chargebacks              float64
+Weather Condition                 object
+Order Channel                     object
+Delivery_Time_Minutes            float64
+Platform_Net_Revenue             float64
+
+4. DELIVERY DURATION CHECK
+Delivery duration calculation: PASS
+
+5. PLATFORM NET REVENUE CHECK
+Platform net revenue calculation: PASS
+
+Rejection reasons:
+Rejection_Reason
+Duplicate record    10
+Total rejected records: 10
+
+7. OVERALL VALIDATION STATUS
+PASS
