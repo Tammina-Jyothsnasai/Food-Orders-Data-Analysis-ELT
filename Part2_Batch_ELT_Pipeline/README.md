@@ -1,109 +1,231 @@
-## Task 1 – Extract the Source Data
+# Food Orders Data Analysis and Batch ELT Pipeline
 
-For this task, I used Pandas to read the original `food_orders.csv` dataset. I configured the batch size as 100 records and extracted the data in batches using the `chunksize` parameter.
+## Project Overview
 
-For each batch, I displayed the batch number and the number of records extracted.
+This project focuses on analysing a Food Orders dataset and developing a batch ELT pipeline using Python, Pandas and MySQL.
 
-The original dataset was not cleaned, modified, or transformed during extraction. All original values, missing values, and duplicate records were kept unchanged.
+The project is divided into two parts. The first part focuses on understanding, cleaning and analysing the dataset using Pandas. The second part implements a batch ELT pipeline that extracts the original data, loads it into a raw MySQL database, retrieves and transforms the records using Pandas, validates the data and loads the processed records into a separate analytics database.
 
-The dataset contained 1,010 records, which were extracted in 11 batches. The first 10 batches contained 100 records each, and the last batch contained 10 records.
+The main objective is to understand the complete data workflow, from the original CSV file to structured data that can be used for business analysis.
 
-**Result:** Successfully extracted 1,010 records in 11 batches.
+## Technologies Used
 
----
+- Python
+- Pandas
+- MySQL
+- MySQL Connector for Python
+- Jupyter Notebook
+- Visual Studio Code
+- Git and GitHub
 
-## Task 2 – Load Raw Data into MySQL
+## Project Structure
 
-For this task, I created a MySQL database named `food_orders_raw_db` and a table named `raw_food_orders`.
+```text
+Food-Orders-Data-Analysis-ELT/
+│
+├── Part1_Data_Analysis/
+│   └── Food_Orders.ipynb
+│
+├── Part2_Batch_ELT_Pipeline/
+│   ├── config.py
+│   ├── extract.py
+│   ├── load_raw.py
+│   ├── retrieve_raw.py
+│   ├── transform.py
+│   ├── validate.py
+│   ├── load_transformed.py
+│   ├── elt_batch_pipeline.py
+│   ├── requirements.txt
+│   ├── validation_report.txt
+│   ├── rejected_records.csv
+│   └── sql/
+│       └── business_analysis.sql
+│
+└── README.md
+```
 
-I used Python and MySQL Connector to load the original CSV records into the raw table in batches of 100 rows.
+## Part 1 – Data Analysis Using Pandas
 
-The original values, missing values, and duplicate records were preserved. No cleaning or transformation was performed during this loading process.
+In the first part, I used Jupyter Notebook and Pandas to explore and analyse the Food Orders dataset.
 
-I used `executemany()` for batch insertion and database transactions to save each successfully inserted batch. If a batch insertion failed, the transaction was rolled back.
+The work included:
 
-Finally, I used the SQL `COUNT(*)` query to verify the total number of records loaded into the raw table.
+1. Loading the original CSV dataset and understanding its structure.
+2. Checking missing values, duplicate records, data types and possible data quality issues.
+3. Identifying suitable data cleaning rules based on the meaning of each column.
+4. Cleaning the data while handling missing values carefully.
+5. Creating additional columns such as delivery time, order date, order hour and platform net revenue.
+6. Answering business questions using Pandas calculations and groupby operations.
+7. Creating visualizations to understand the data and identify useful patterns.
+8. Validating the cleaned dataset and checking the results.
 
-**Result:** Successfully loaded 1,010 records into `raw_food_orders` across 11 batches and verified the record count in MySQL.
+## Part 2 – Batch ELT Pipeline Using Python and MySQL
 
----
+In the second part, I developed a batch ELT pipeline to process the Food Orders dataset.
 
-## Task 3 – Retrieve Raw Data from MySQL
+### 1. Extract the Source Data
 
-For this task, I connected Python to the `food_orders_raw_db` database using MySQL Connector.
+I used Pandas to read the original CSV file in batches of 100 records using the `chunksize` parameter.
 
-I retrieved the records from the `raw_food_orders` table in batches of 100 rows using `fetchmany()`.
+The original records were extracted without cleaning or modifying their values.
 
-Each retrieved batch was converted into a separate Pandas DataFrame. I displayed the batch number and the number of records retrieved.
+**Result:** 1,010 records extracted in 11 batches.
 
-The raw MySQL table was not modified during this process. Finally, I checked the total number of retrieved records to make sure all records were fetched successfully.
+### 2. Load Raw Data into MySQL
 
-## Task 4 – Transform Data Using Pandas
+I created a MySQL database named `food_orders_raw_db` and a table named `raw_food_orders`.
 
-For this task, I retrieved the raw records from MySQL in batches of 100 and transformed each batch using Pandas.
+The original records were loaded using MySQL Connector and `executemany()`. Batch transactions were used to commit successful insertions and roll back failed insertions.
 
-The transformation included the following operations:
+**Result:** 1,010 raw records loaded and verified in MySQL.
 
-1. Removed exact duplicate records, including duplicates occurring across different batches.
-2. Replaced missing Payment Method values with `Unknown`.
-3. Replaced missing Discounts and Offers values with `Not Specified`.
-4. Converted order and delivery timestamps into datetime format.
-5. Converted financial columns into numeric data types.
-6. Created `Delivery_Time_Minutes` using the difference between delivery and order timestamps.
-7. Created `Platform_Net_Revenue` using the specified revenue formula.
-8. Identified records with missing or invalid timestamps and negative delivery durations.
+### 3. Retrieve Raw Data from MySQL
 
-Missing financial values were retained instead of replacing them with zero. Platform net revenue was calculated only when all four required financial components were available.
+I retrieved the raw records using MySQL Connector and `fetchmany()`.
 
-The valid records and rejected records were separated for the next validation stage. Rejected records were also assigned reasons to explain why they were excluded.
+Each batch was converted into a Pandas DataFrame for further processing. The original raw table remained unchanged.
 
+**Result:** 1,010 records retrieved in 11 batches.
 
-## Task 6 – Load Transformed Data into a Separate MySQL Database
+### 4. Transform Data Using Pandas
 
-In this task, I created a separate MySQL database named `food_orders_analytics_db` and a table named `cleaned_food_orders`.
+I used Pandas to clean and transform the retrieved records.
 
-I defined suitable data types for identifiers, timestamps, financial values and calculated columns.
+The main operations included:
 
-Before loading, I performed the transformation and validation steps. Only the validated records were loaded into the analytics database.
+- Removing exact duplicate records, including duplicates across different batches.
+- Handling missing payment methods using `Unknown`.
+- Handling missing discounts and offers using `Not Specified`.
+- Converting timestamps into datetime format.
+- Converting financial columns into numeric data types.
+- Calculating `Delivery_Time_Minutes`.
+- Calculating `Platform_Net_Revenue`.
+- Identifying invalid timestamps and negative delivery durations.
+- Separating valid and rejected records with rejection reasons.
 
-The records were inserted in batches of 100 using `executemany()`. Each batch was committed using transactions. If an insertion failed, the current batch was rolled back and an error message was displayed.
+Missing financial values were not automatically replaced with zero. Platform net revenue was calculated only when all required financial components were available.
 
-Finally, I verified the records using a SQL COUNT query.
+### 5. Validate Transformed Data
 
-### Task 6 Results
+I performed validation checks on the transformed records.
+
+The checks included missing values, duplicate records, data types, delivery duration calculations, revenue calculations and rejected records.
+
+The validation results were saved in `validation_report.txt`, and rejected records were stored in `rejected_records.csv` if that is the filename used in the project.
+
+### 6. Load Transformed Data into MySQL
+
+I created a separate analytics database named `food_orders_analytics_db` and a table named `cleaned_food_orders`.
+
+Only validated records were loaded into the analytics database in batches of 100. Transactions were used to handle successful and failed insertions.
+
+**Result:**
 
 - Analytics database: `food_orders_analytics_db`
 - Analytics table: `cleaned_food_orders`
 - Batch size: 100
-- Successful batches: 10
+- Successful loading batches in the initial load: 10
 - Total records loaded: 1,000
 - Final MySQL record count: 1,000
 - Loading status: PASS
 
+### 7. Pipeline Execution
 
-## Task 7 – Pipeline Execution
+I created `elt_batch_pipeline.py` to coordinate the complete workflow.
 
-In this task, I organized the complete ELT workflow into separate Python files. I created `elt_batch_pipeline.py` to execute the workflow in the correct order.
+The pipeline executes extraction, raw loading, retrieval, transformation, validation and analytics loading in the required order.
 
-The pipeline performs the following steps:
+Record-count checks were included to avoid loading the same records again when the pipeline is rerun.
 
-1. Prepare the raw database and table.
-2. Load source data when the raw table is empty.
-3. Retrieve raw records from MySQL in batches.
-4. Transform the retrieved data using Pandas.
-5. Validate transformed records and identify rejected records.
-6. Load validated records into the analytics database when it is empty.
-7. Verify the final record count.
+**Execution Results:**
 
-I also included record-count checks to avoid inserting the same records again when the pipeline is executed.
+| Description | Result |
+|---|---:|
+| Source records | 1,010 |
+| Extraction batches | 11 |
+| Raw records in MySQL | 1,010 |
+| Retrieved records | 1,010 |
+| Retrieval batches | 11 |
+| Valid transformed records | 1,000 |
+| Rejected records | 10 |
+| Analytics records | 1,000 |
+| Validation status | PASS |
+| Pipeline status | PASS |
 
-### Task 7 Results
+All 10 rejected records were identified as duplicate records.
 
-- Raw records: 1,010
-- Retrieved records: 1,010
-- Retrieved batches: 11
-- Valid transformed records: 1,000
-- Rejected records: 10
-- Analytics records: 1,000
-- Validation status: PASS
-- Pipeline status: PASS
+### 8. SQL Business Analysis
+
+I prepared SQL queries in `business_analysis.sql` to analyse the processed data in the analytics database.
+
+The queries are designed to calculate:
+
+- Total order value.
+- Average order value.
+- Payment method with the highest number of orders.
+- Order channel with the highest number of orders.
+- Average delivery time.
+- Total platform net revenue.
+
+## How to Run the Project
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/Food-Orders-Data-Analysis-ELT.git
+```
+
+### Step 2: Open the Project
+
+Open the downloaded project folder in Visual Studio Code.
+
+### Step 3: Install Required Packages
+
+```bash
+pip install -r Part2_Batch_ELT_Pipeline/requirements.txt
+```
+
+### Step 4: Configure MySQL
+
+Update the database connection settings in `config.py` with your local MySQL details. Do not publish your database password or other credentials.
+
+Create the required databases and tables through the pipeline or the provided SQL scripts, as configured in the project.
+
+### Step 5: Run the ELT Pipeline
+
+Open the Part 2 folder in the terminal:
+
+```bash
+cd Part2_Batch_ELT_Pipeline
+```
+
+Execute:
+
+```bash
+python elt_batch_pipeline.py
+```
+
+### Step 6: Execute SQL Business Analysis
+
+Open `sql/business_analysis.sql` in MySQL Workbench, select the analytics database and execute the queries to view the business analysis results.
+
+## Key Learning Outcomes
+
+Through this project, I gained practical experience in:
+
+- Exploring and analysing real-world datasets using Pandas.
+- Identifying and handling data quality issues.
+- Understanding the difference between ETL and ELT.
+- Extracting and loading data in batches.
+- Connecting Python applications with MySQL.
+- Performing data transformations using Pandas.
+- Validating records and identifying rejected data.
+- Managing separate raw and analytics databases.
+- Building and executing an automated data pipeline.
+- Writing SQL queries for business analysis.
+
+## Conclusion
+
+This project helped me understand how raw data can be extracted, stored, processed, validated and prepared for analysis through a batch ELT workflow.
+
+By combining Python, Pandas and MySQL, I developed a pipeline that preserves the original raw data and stores validated records separately for analytics. It also gave me practical experience in data analysis, database operations, batch processing and pipeline execution.
